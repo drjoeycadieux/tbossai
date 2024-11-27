@@ -9,11 +9,14 @@ const title = "Your Next Generation AI";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Tboss AI</title>
+
+    <!-- Tailwind CSS Link (if you are using a CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
   <body class="bg-gray-900 text-white">
     <!-- Navbar -->
-    <div class="navbar-main-top navbar bg-gray-800 p-4">
+    <div class="navbar-main-top navbar bg-gray-800 p-2">
       <ul class="flex space-x-4">
         <li><p class="text-2xl font-semibold">Tboss AI</p></li>
         <li><a href="/" class="text-lg hover:text-gray-400">Home</a></li>
@@ -23,7 +26,7 @@ const title = "Your Next Generation AI";
     <!-- Header Section -->
     <div class="header-main-content text-center py-10">
       <img
-        class="rounded-xl mx-auto"
+        class="mx-auto rounded-xl"
         width="300"
         height="300"
         src="/tboss.png"
@@ -38,4 +41,3 @@ const title = "Your Next Generation AI";
     </div>
   </body>
 </html>
-
