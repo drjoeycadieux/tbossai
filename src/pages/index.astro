@@ -1,4 +1,6 @@
 ---
+import Button from "../components/Button.astro";
+
 const title = "Your Next Generation AI";
 ---
 
@@ -9,9 +11,6 @@ const title = "Your Next Generation AI";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Tboss AI</title>
-
-    <!-- Tailwind CSS Link (if you are using a CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
   <body class="bg-gray-900 text-white">
@@ -33,6 +32,10 @@ const title = "Your Next Generation AI";
         alt="Tboss AI logo"
       />
       <p class="text-4xl font-extrabold mt-4">{title}</p>
+      <br>
+      <center>
+        <Button/>
+      </center>
     </div>
 
     <!-- Footer Section -->
