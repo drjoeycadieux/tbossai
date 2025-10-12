@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ChatMessage from '../components/ChatMessage.astro';
+import Navbar from '../components/Navbar.astro';
+---
+
+<Layout title="Chat with Tboss AI">
+  <div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <Navbar />
+    <div class="max-w-4xl mx-auto px-4 pt-24 pb-8">
+      <div class="mb-8 text-center">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+          Chat with Tboss AI
+        </h1>
+        <p class="mt-2 text-gray-400">
+          Powered by Google's Gemini AI
+        </p>
+      </div>
+
+      <div class="bg-gray-900/80 rounded-2xl shadow-xl border border-gray-800 backdrop-blur-sm">
+        <div id="chat-container" class="h-[500px] overflow-y-auto p-6">
+          <ChatMessage
+            type="bot"
+            message="Hello! I'm Tboss AI, powered by Google's Gemini. How can I help you today?"
+          />
+        </div>
+        
+        <div class="border-t border-gray-800 p-4">
+          <form id="chat-form" class="flex gap-4">
+            <input
+              type="text"
+              id="user-input"
+              class="flex-1 bg-gray-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Type your message..."
+              required
+            />
+            <button
+              type="submit"
+              class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2"
+            >
+              Send
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input') as HTMLInputElement;
+
+    function createMessageElement(type: 'user' | 'bot', message: string) {
+      const div = document.createElement('div');
+      div.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-4`;
+      
+      const innerDiv = document.createElement('div');
+      innerDiv.className = `max-w-[80%] p-4 rounded-2xl ${
+        type === 'user'
+          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+          : 'bg-gray-800 text-gray-100'
+      }`;
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'flex items-start';
+
+      if (type === 'bot') {
+        const botIcon = document.createElement('div');
+        botIcon.className = 'flex-shrink-0 mr-3';
+        botIcon.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+        `;
+        contentDiv.appendChild(botIcon);
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flex-1';
+      messageDiv.textContent = message;
+
+      if (type === 'user') {
+        const userIcon = document.createElement('div');
+        userIcon.className = 'flex-shrink-0 ml-3';
+        userIcon.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+        `;
+        contentDiv.appendChild(messageDiv);
+        contentDiv.appendChild(userIcon);
+      } else {
+        contentDiv.appendChild(messageDiv);
+      }
+
+      innerDiv.appendChild(contentDiv);
+      div.appendChild(innerDiv);
+      return div;
+    }
+
+    chatForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      // Add user message to chat
+      chatContainer?.appendChild(createMessageElement('user', message));
+      
+      // Clear input
+      userInput.value = '';
+      
+      // Scroll to bottom
+      chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+
+      try {
+        const response = await fetch('/api/chat-endpoint', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message }),
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        // Add bot response to chat
+        chatContainer?.appendChild(createMessageElement('bot', data.response));
+        
+        // Scroll to bottom
+        chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      } catch (error) {
+        console.error('Error:', error);
+        chatContainer?.appendChild(
+          createMessageElement('bot', 'Sorry, I encountered an error. Please try again.')
+        );
+      }
+    });
+  </script>
+</Layout>
